@@ -26,7 +26,25 @@ Object.keys(config).forEach(function(key) {
                 if(message.operation == 'create') {
                     try {
                         if(message.model.fromUser.username != config[key].gitterNickname) {
-                            ircClient.say(item.ircChannel, message.model.text);
+                            if (message.model.text.substring(0, config[key].gitterNickname.length) == config[key].gitterNickname) {
+                                var order = message.model.text.split(":")[1];
+                                switch (order) {
+                                    case "userlist":
+                                        var userList = "Users in " + item.ircChannel + "\r\n\t";
+                                        var users = ircClient.chans[item.ircChannel].users;
+                                        Object.keys(users).forEach(function(userKey) {
+                                            userList += "[" + users[userKey] + "]" + userKey  + "\r\n\t";
+                                            room.send(userList);
+                                        });
+
+                                        break;
+                                    default:
+                                        room.send("I don't know this command: " + order);
+                                }
+
+                            } else {
+                                ircClient.say(item.ircChannel, message.model.text);
+                            }
                         }
                     } catch(err) {
                         console.log(err);
